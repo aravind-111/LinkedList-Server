@@ -11,6 +11,7 @@ const PORT = 8080;
         await mongodb.connect();
         app.use(express.json());
         app.post("/newpost", services.newPostRoutes);
+        app.delete("/deletepost/:id", services.deletePost);
         app.listen(PORT, () => {
             console.log("server started at http://localhost:8080/");
         })

@@ -37,6 +37,70 @@ const services = {
             console.log(e);
             res.status(422).send("Error in Posting");
         }
+    },
+
+    async deletePost(req, res) {
+        try {
+            const id = req.params.id;
+
+            // GET ALL DATA FROM DB
+            const allPosts = await mongodb.users.find().toArray();
+
+            // GET CURRENT POST FROM DB
+            const current_post = await mongodb.users.findOne({ post_id: id });
+            
+            // IF POST TO BE DELETED IS FIRST POST
+            if(current_post.prev === null) {
+                allPosts.map(async (post) => {
+                    if(post.prev === current_post.post_id) {
+                        const updatedPost = {
+                            ...post,
+                            prev: null
+                        }
+                        await mongodb.users.findOneAndUpdate({ post_id: post.post_id }, { $set: updatedPost }, { ReturnDocument: "after" });
+                    }
+                });
+            }
+
+            // IF POST TO BE DELETED IS LAST POST
+            else if(current_post.next === null) {
+                allPosts.map(async (post) => {
+                    if(post.next === current_post.post_id) {
+                        const updatedPost = {
+                            ...post,
+                            next: null
+                        }
+                        await mongodb.users.findOneAndUpdate({ post_id: post.post_id }, { $set: updatedPost }, { ReturnDocument: "after" });
+                    }
+                });
+            }
+
+            // ELSE
+            else {
+                allPosts.map(async (post) => {
+                    if(post.next === current_post.post_id) {
+                        const updatedPost = {
+                            ...post,
+                            next: current_post.next
+                        }
+                        await mongodb.users.findOneAndUpdate({ post_id: post.post_id }, { $set: updatedPost }, { ReturnDocument: "after" });
+                    }
+                    if(post.prev === current_post.post_id) {
+                        const updatedPost = {
+                            ...post,
+                            prev: current_post.prev
+                        }
+                        await mongodb.users.findOneAndUpdate({ post_id: post.post_id }, { $set: updatedPost }, { ReturnDocument: "after" });
+                    }
+                })
+            }
+            await mongodb.users.deleteOne({ post_id: current_post.post_id });
+            res.status(200).send("Successfully Deleted");
+            
+        } catch(e) {
+            console.log(e);
+            res.status(422).send("Error in Deleting");
+        }
     }
 }
 
