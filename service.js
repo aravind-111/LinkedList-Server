@@ -101,6 +101,27 @@ const services = {
             console.log(e);
             res.status(422).send("Error in Deleting");
         }
+    },
+
+    async getSinglePost(req, res) {
+        try {
+            const id = req.params.id;
+            const singlePost = await mongodb.users.findOne({ post_id: id });
+            res.status(200).send(singlePost);
+        } catch(e) {
+            console.log(e);
+            res.status(422).send("Error in get");
+        }
+    },
+
+    async getAllPosts(req, res) {
+        try {
+        const posts = await mongodb.users.find().toArray();
+        res.status(200).send(posts);
+        } catch(e) {
+            console.log(e);
+            res.status(422).send("Error in Fetching all Posts");
+        }
     }
 }
 
