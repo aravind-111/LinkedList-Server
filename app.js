@@ -15,6 +15,7 @@ const PORT = 8080;
         app.post("/newpost", services.newPostRoutes);
         app.delete("/deletepost/:id", services.deletePost);
         app.get("/getsinglepost/:id", services.getSinglePost);
+        app.post("/insertpostmiddle/:firstid/:secondid", services.insertPostMiddle)
         app.get("/getallposts", services.getAllPosts);
         app.listen(PORT, () => {
             console.log("server started at http://localhost:8080/");
