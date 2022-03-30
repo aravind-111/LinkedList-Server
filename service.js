@@ -5,9 +5,9 @@ const services = {
     async newPostRoutes(req, res){
         try {
             // DATA TO STORE IN DB
-            const date = new Date().getTime();
+            // const date = new Date().getTime();
             const post_id = crypto.randomBytes(16).toString("hex");
-            let pocket = {...req.body, date, post_id};
+            let pocket = {...req.body, post_id};
 
             // GET ALL DATA FROM DB
             const allPosts = await mongodb.users.find().toArray();
@@ -128,34 +128,12 @@ const services = {
 
         try {
             // DATA TO STORE IN DB
-            const date = new Date().getTime();
             const post_id = crypto.randomBytes(16).toString("hex");
-            let pocket = {...req.body, date, post_id};
+            let pocket = {...req.body, post_id};
 
             const posts = await mongodb.users.find().toArray();
 
-            console.log(req.params.firstid, req.params.secondid);
-            let previousPost = posts[req.params.firstid - 1];
-            let nextPost = posts[req.params.secondid - 1];
-
-            pocket = {...pocket, prev: previousPost.post_id, next: nextPost.post_id};
-            await mongodb.users.insertOne(pocket);
-
-            let updatedPost = {
-                ...previousPost,
-                next: post_id
-            }
-
-            await mongodb.users.findOneAndUpdate({ post_id: previousPost.post_id }, { $set: updatedPost }, { ReturnDocument: "after" });
-
-            updatedPost = {
-                ...nextPost,
-                prev: post_id
-            };
-
-            await mongodb.users.findOneAndUpdate({ post_id: nextPost.post_id }, { $set: updatedPost }, { ReturnDocument: "after" });
-
-            res.status(200).send("Successfully added user");
+            
 
         } catch(e) {
             console.log(e);
