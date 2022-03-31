@@ -130,8 +130,45 @@ const services = {
             // DATA TO STORE IN DB
             const post_id = crypto.randomBytes(16).toString("hex");
             let pocket = {...req.body, post_id};
+            let lastPost;
+            let nextPost;
 
             const posts = await mongodb.users.find().toArray();
+
+            lastPost = posts[0];
+            nextPost = posts[0];
+
+            for(let i=1; i<posts.length; i++) {
+                if((lastPost.date < posts[i].date) & (posts[i].date < req.body.date)) {
+                    lastPost = posts[i];
+                }
+                if((lastPost.date < posts[i].date) & (posts[i].date > req.body.date)) {
+                    nextPost = posts[i];
+                }
+            }
+
+            const updatedLastPost = {
+                ...lastPost,
+                next: post_id
+            }
+            await mongodb.users.findOneAndUpdate({ post_id: lastPost.post_id }, { $set: updatedLastPost }, { ReturnDocument: "after" });
+
+            const updatedNextPost = {
+                ...nextPost,
+                prev: post_id
+            }
+            await mongodb.users.findOneAndUpdate({ post_id: nextPost.post_id }, { $set: updatedNextPost }, { ReturnDocument: "after" });
+
+            const newPost = {
+                ...pocket,
+                prev: lastPost.post_id,
+                next: nextPost.post_id
+            }
+            const insertNewUser = await mongodb.users.insertOne(newPost);
+            res.send("success");
+            
+
+            
 
             
 
